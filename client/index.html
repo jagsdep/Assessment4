@@ -5,7 +5,69 @@
   </head>
   <body class="container">
     <button id="complimentButton">Get a compliment</button>
+    <button id ="fortuneButton">Get a fortune</button><br><br>
+    <form>
+      <input 
+          type='text'
+          id="quotes"
+          placeholder="Inspirational quotes"/>
 
+      <button>add quotes</button>
+
+
+     
+      <section id="ratings-container">
+          <p>Rate the quotes:</p>
+
+          <div id="radio-container">
+    <label for="one">
+      <input
+          type="radio"
+          name="ratings"
+          value="1"
+          id="one"/>
+      1
+  </label>
+  <label for="two">
+      <input
+          type="radio"
+          name="ratings"
+          value="2"
+          id="two"/>
+      2
+  </label>
+  <label for="three">
+      <input
+          type="radio"
+          name="ratings"
+          value="3"
+          id="three"/>
+      3
+  </label>
+  <label for="four">
+      <input
+          type="radio"
+          name="ratings"
+          value="4"
+          id="four"/>
+      4
+  </label>
+  <label for="five">
+      <input
+          type="radio"
+          name="ratings"
+          value="5"
+          id="five"/>
+      5
+  </label>
+</div>
+</section>
+
+</form>
+<section id="quotes-container"></section>
+      
+  
+ 
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script>
       document.getElementById("complimentButton").onclick = function () {
@@ -15,6 +77,70 @@
               alert(data);
             });
       };
+
+      document.getElementById("fortuneButton").onclick = function () {
+        axios.get("http://localhost:4000/api/fortune/")
+            .then(function (response) {
+              const data = response.data;
+              alert(data);
+            });
+
+      };
+    
+    const quotesContainer = document.querySelector('#quotes-container')
+   const form = document.querySelector('form')
+   const quotesCallback = ({data: quotes}) => displayQuotes(quotes)
+   const errCallback = err => console.log(err.response.data)
+   const createQuotes = body =>axios.post(baseURL).then(quotesCallback)
+
+
+   function submitHandler(e) {
+     e.preventDefault()
+
+     let quotes = document.querySelector('#quotes')
+     let rating = document.querySelector('input[name ="ratings"]:checked')
+    
+     let bodyObj = {
+       quotes: quotes.value,
+       rating: rating.value
+     }
+
+     createQuotes(bodyObj)
+
+     quotes.value = ''
+     rating.checked = false
+
+     function createQuotesCard(quotes) {
+    const quoteCard = document.createElement('div')
+    quoteCard.classList.add('quote-card')
+
+    quoteCard.innerHTML = `< class="movie-title">${movie.title}>
+    <div class="btns-container">
+        <button onclick="updateQuotes(${quotes.id}, 'minus')">-</button>
+        <p class="quotes-rating">${quotes.rating} stars</p>
+
+    </div>
+    <button onclick="deleteQuotes(${quotes.id})">delete</button>
+    `
+
+
+    quotesContainer.appendChild(quotesCard)
+}
+
+
+     function displayQuotes(arr) {
+       quotesContainer.innerHTML = ``
+       for (let i =0; i< arr.length;i++){
+         createQuotesCard(arr[i])
+       }
+     }
+     form.addEventListener('submit', submitHandler)
+
+     getAllQuotes()
+    
+    }
+
+
     </script>
   </body>
 </html>
