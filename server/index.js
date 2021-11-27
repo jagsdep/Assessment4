@@ -8,6 +8,8 @@ app.use(cors());
 
 app.use(express.json()); // When we want to be able to accept JSON.
 
+let createQuotes = require("./db.json");
+
 app.get("/api/compliment", (req, res) => {
   const compliments = ["Gee, you're a smart cookie!",
 					 "Cool shirt!",
@@ -38,20 +40,30 @@ let randomFortune = fortune[randomInd];
 res.status(200).send(randomFortune);
 });
 
+
 app.post("/api/quotes", (req, res) => {
- 
-     let {quotes, rating} = req. body
-     let newQuotes = {
-      quotes,
-      rating
-    } 
+
+    let quote = req.body.newQuote
       
-  createQuotes.push(newQuotes)
-  res.status(200).send(quotes)
+  createQuotes.push(quote)
+  res.status(200).send(createQuotes)
 
   }
 
 );
+
+app.delete("/api/quotes/:quoteId", (req, res) =>{
+
+  let quoteIndex = createQuotes.findIndex(quote => quote.id ==req.params.quoteId)
+  createQuotes.splice(quoteIndex, 1)
+  res.status(200).send(createQuotes)
+})
+
+app.get("/api/quotes", (req, res) => {
+
+  let quotes = require("./db.json")
+  res.status(200).send(quotes)
+})
 
 
 

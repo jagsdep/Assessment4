@@ -6,70 +6,22 @@
   <body class="container">
     <button id="complimentButton">Get a compliment</button>
     <button id ="fortuneButton">Get a fortune</button><br><br>
-    <form>
+  
       <input 
           type='text'
           id="quotes"
           placeholder="Inspirational quotes"/>
 
-      <button>add quotes</button>
+      <button id="add-quotes">add quotes</button>
 
-
-     
-      <section id="ratings-container">
-          <p>Rate the quotes:</p>
-
-          <div id="radio-container">
-    <label for="one">
-      <input
-          type="radio"
-          name="ratings"
-          value="1"
-          id="one"/>
-      1
-  </label>
-  <label for="two">
-      <input
-          type="radio"
-          name="ratings"
-          value="2"
-          id="two"/>
-      2
-  </label>
-  <label for="three">
-      <input
-          type="radio"
-          name="ratings"
-          value="3"
-          id="three"/>
-      3
-  </label>
-  <label for="four">
-      <input
-          type="radio"
-          name="ratings"
-          value="4"
-          id="four"/>
-      4
-  </label>
-  <label for="five">
-      <input
-          type="radio"
-          name="ratings"
-          value="5"
-          id="five"/>
-      5
-  </label>
-</div>
-</section>
-
-</form>
 <section id="quotes-container"></section>
       
   
  
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script>
+    let myQuotes = []
+    getAllQuotes()
       document.getElementById("complimentButton").onclick = function () {
         axios.get("http://localhost:4000/api/compliment/")
             .then(function (response) {
@@ -103,30 +55,44 @@
      let bodyObj = {
        quotes: quotes.value,
        rating: rating.value
+
      }
 
      createQuotes(bodyObj)
 
      quotes.value = ''
      rating.checked = false
+    
+    }
+
 
      function createQuotesCard(quotes) {
+       console.log('quotes', quotes)
     const quoteCard = document.createElement('div')
     quoteCard.classList.add('quote-card')
 
-    quoteCard.innerHTML = `< class="movie-title">${movie.title}>
-    <div class="btns-container">
-        <button onclick="updateQuotes(${quotes.id}, 'minus')">-</button>
-        <p class="quotes-rating">${quotes.rating} stars</p>
-
+    quoteCard.innerHTML = `<class="quotes-title">${quotes.title}
+  
+    <div style="margin-bottom:10px" class="btns-container">
+     <button onclick="deleteQuotes(${quotes.id})">delete</button>
+        
     </div>
-    <button onclick="deleteQuotes(${quotes.id})">delete</button>
     `
-
-
-    quotesContainer.appendChild(quotesCard)
+    quotesContainer.appendChild(quoteCard)
+    
 }
 
+function postQuote(quote){
+  axios.post('http://localhost:4000/api/quotes/', {newQuote:quote})
+  .then(function (response){
+    console.log(response)
+    myQuotes=response.data
+      displayQuotes(myQuotes)
+
+  })
+
+  
+}
 
      function displayQuotes(arr) {
        quotesContainer.innerHTML = ``
@@ -134,12 +100,39 @@
          createQuotesCard(arr[i])
        }
      }
-     form.addEventListener('submit', submitHandler)
+     
 
-     getAllQuotes()
+     document.getElementById("add-quotes").onclick = function(){
+        const inputValue = document.getElementById("quotes").value;
+        //alert(inputValue)
+        const Obj = {title:inputValue,
+          id: Date.now()
+          
+        }
+        postQuote(Obj)
     
-    }
+      }
 
+      function deleteQuotes(quoteId){
+        axios.delete(`http://localhost:4000/api/quotes/${quoteId}`)
+        .then(function (response){
+          console.log(response.data)
+          myQuotes = response.data
+          displayQuotes(myQuotes)
+        })
+
+        alert(quoteId)
+      }
+
+    function getAllQuotes(){
+      axios.get("http://localhost:4000/api/quotes")
+      .then(function (response){
+        myQuotes=response.data
+        displayQuotes(myQuotes)
+      })
+    
+      
+    }
 
     </script>
   </body>
